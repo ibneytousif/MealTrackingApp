@@ -10,6 +10,8 @@ import { initUserCheckboxes, loadUsersIntoCheckboxes } from './components/UserCh
 import { initDashboard, updateDashboard } from './features/DashboardFeature.js';
 import { initManageUsers, loadUsersIntoSelects } from './features/UserManagement.js';
 import { initMealForm } from './features/MealFeature.js';
+import { initRevenueForm } from './features/RevenueFeature.js';
+import { initExpenseForm } from './features/ExpenseFeature.js';
 
 /**
  * Initialize application
@@ -31,6 +33,8 @@ async function initApp() {
     await initManageUsers();
     await initDashboard();
     initMealForm();
+    initRevenueForm();
+    initExpenseForm();
     
     // Expose updateDashboard globally for other modules
     window.updateDashboard = updateDashboard;
