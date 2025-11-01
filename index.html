@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Meal Tracking App</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .login-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        width: 100%;
+        max-width: 400px;
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 30px;
+        text-align: center;
+        color: white;
+      }
+
+      .login-header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .login-header p {
+        font-size: 0.95rem;
+        opacity: 0.9;
+      }
+
+      .login-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .login-body {
+        padding: 40px 30px;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-group input::placeholder {
+        color: #adb5bd;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      }
+
+      .login-btn:active {
+        transform: translateY(0);
+      }
+
+      .error-message {
+        background: #fee;
+        color: #dc3545;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+        border-left: 4px solid #dc3545;
+        font-size: 0.9rem;
+      }
+
+      .error-message.show {
+        display: block;
+        animation: shake 0.4s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        75% {
+          transform: translateX(10px);
+        }
+      }
+
+      .login-footer {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.85rem;
+      }
+
+      .input-icon {
+        position: relative;
+      }
+
+      .input-icon::before {
+        content: attr(data-icon);
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+      }
+
+      .input-icon input {
+        padding-left: 45px;
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          border-radius: 0;
+        }
+
+        .login-header h1 {
+          font-size: 1.5rem;
+        }
+
+        .login-body {
+          padding: 30px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <div class="login-icon">🍽️</div>
+        <h1>Meal Tracking App</h1>
+        <p>Please login to continue</p>
+      </div>
+
+      <div class="login-body">
+        <div id="error-message" class="error-message">
+          ❌ Invalid username or password
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-icon" data-icon="👤">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                required
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-icon" data-icon="🔒">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="login-btn">Login</button>
+        </form>
+      </div>
+
+      <div class="login-footer">
+        © 2025 Meal Tracking App. All rights reserved.
+      </div>
+    </div>
+
+    <script>
+      // Login form handler
+      const loginForm = document.getElementById("login-form");
+      const errorMessage = document.getElementById("error-message");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+
+      // Credentials
+      const CORRECT_USERNAME = "tousif";
+      const CORRECT_PASSWORD = "2025";
+
+      loginForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        // Validate credentials
+        if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+          // Success - redirect to main app
+          errorMessage.classList.remove("show");
+
+          // Store login state (optional)
+          sessionStorage.setItem("isLoggedIn", "true");
+          sessionStorage.setItem("username", username);
+
+          // Redirect to main app
+          window.location.href = "dashboard.html";
+        } else {
+          // Show error
+          errorMessage.classList.add("show");
+
+          // Clear password field
+          passwordInput.value = "";
+          passwordInput.focus();
+
+          // Remove error after 3 seconds
+          setTimeout(() => {
+            errorMessage.classList.remove("show");
+          }, 3000);
+        }
+      });
+
+      // Remove error on input
+      usernameInput.addEventListener("input", () => {
+        errorMessage.classList.remove("show");
+      });
+
+      passwordInput.addEventListener("input", () => {
+        errorMessage.classList.remove("show");
+      });
+    </script>
+  </body>
+</html>

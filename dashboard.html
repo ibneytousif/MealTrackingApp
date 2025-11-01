@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Management Webapp</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Login Check -->
+    <script>
+      // Check if user is logged in
+      if (!sessionStorage.getItem("isLoggedIn")) {
+        window.location.href = "index.html";
+      }
+    </script>
+    <!-- Using Firebase Modular SDK via ES module imports -->
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Bachelor's Finance Tracker</h1>
+        <p>Manage Revenue, Expenses, and Meal Tracking</p>
+        <button id="logout-btn" class="logout-btn" onclick="logout()">
+          🚪 Logout
+        </button>
+      </div>
+
+      <div class="main-content full-screen">
+        <div class="sidebar">
+          <ul class="tab-buttons">
+            <li>
+              <a href="#" class="tab-button active" data-tab="dashboard"
+                >Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="#" class="tab-button" data-tab="tab1">Revenue Entry</a>
+            </li>
+            <li>
+              <a href="#" class="tab-button" data-tab="tab2">Expense Entry</a>
+            </li>
+            <li>
+              <a href="#" class="tab-button" data-tab="tab3">Meal Tracking</a>
+            </li>
+            <li>
+              <a href="#" class="tab-button" data-tab="manage-users"
+                >Manage Users</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="content-area">
+          <!-- Dashboard Tab -->
+          <div id="dashboard" class="tab-content active">
+            <h2 style="margin-bottom: 30px; color: #2c3e50">
+              Dashboard Overview
+            </h2>
+            <!-- Dashboard Filters -->
+            <div class="filter-section">
+              <h4 style="margin-bottom: 15px; color: #495057">
+                📊 Dashboard Filters
+              </h4>
+              <div class="filter-row">
+                <div class="filter-group">
+                  <label>From Date</label>
+                  <input type="date" id="dash-from-date" class="form-control" />
+                </div>
+                <div class="filter-group">
+                  <label>To Date</label>
+                  <input type="date" id="dash-to-date" class="form-control" />
+                </div>
+                <div class="filter-group">
+                  <label>User Filter</label>
+                  <select
+                    id="dash-user-filter"
+                    class="form-control user-select"
+                    data-select-type="dash"
+                  >
+                    <option value="">Loading users...</option>
+                  </select>
+                </div>
+                <button
+                  id="dash-apply-btn"
+                  class="btn"
+                  style="height: fit-content"
+                >
+                  Apply Filter
+                </button>
+              </div>
+              <div class="filter-buttons">
+                <button class="filter-btn active">Today</button>
+                <button class="filter-btn">This Week</button>
+                <button class="filter-btn">This Month</button>
+                <button class="filter-btn">This Year</button>
+                <button class="filter-btn">Last 7 Days</button>
+                <button class="filter-btn">Last 30 Days</button>
+                <button class="filter-btn">Last 90 Days</button>
+              </div>
+            </div>
+            <!-- Stats Cards -->
+            <div class="dashboard-section">
+              <div class="stats-card revenue">
+                <h3>Total Revenue</h3>
+                <div class="stats-value">$0.00</div>
+              </div>
+              <div class="stats-card expense">
+                <h3>Total Expenses</h3>
+                <div class="stats-value">$0.00</div>
+              </div>
+              <div class="stats-card meals">
+                <h3>Meals Logged</h3>
+                <div class="stats-value">0</div>
+              </div>
+            </div>
+            <!-- Data Tables -->
+            <div id="dashboard-data-tables" style="margin-top: 30px">
+              <div class="data-table" id="revenue-table">
+                <div class="table-header">Recent Revenue</div>
+                <div class="table-content" id="revenue-table-body"></div>
+              </div>
+              <div class="data-table" id="expenses-table">
+                <div class="table-header">Recent Expenses</div>
+                <div class="table-content" id="expenses-table-body"></div>
+              </div>
+              <div class="data-table" id="meals-table">
+                <div class="table-header">Recent Meals</div>
+                <div class="table-content" id="meals-table-body"></div>
+              </div>
+            </div>
+            <!-- Export Section with Filters -->
+            <div class="export-section">
+              <h3>📤 Export Data with Filters</h3>
+              <!-- Export Filters -->
+              <div
+                class="filter-section"
+                style="background: white; margin: 20px 0; text-align: left"
+              >
+                <h4 style="margin-bottom: 15px; color: #495057">
+                  🔍 Export Filters
+                </h4>
+                <div class="filter-row">
+                  <div class="filter-group">
+                    <label>Export From Date</label>
+                    <input
+                      type="date"
+                      id="export-from-date"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="filter-group">
+                    <label>Export To Date</label>
+                    <input
+                      type="date"
+                      id="export-to-date"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="filter-group">
+                    <label>User Filter</label>
+                    <select
+                      id="export-user-filter"
+                      class="form-control user-select"
+                      data-select-type="export"
+                    >
+                      <option value="">Loading users...</option>
+                    </select>
+                  </div>
+                  <div class="filter-group">
+                    <label>Data Type</label>
+                    <select id="export-data-type" class="form-control">
+                      <option value="all">All Data</option>
+                      <option value="revenue">Revenue Only</option>
+                      <option value="expenses">Expenses Only</option>
+                      <option value="meals">Meals Only</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="filter-buttons">
+                  <button class="filter-btn">Today</button>
+                  <button class="filter-btn">This Week</button>
+                  <button class="filter-btn">This Month</button>
+                  <button class="filter-btn">This Year</button>
+                  <button class="filter-btn">Last 30 Days</button>
+                  <button class="filter-btn">Custom Range</button>
+                </div>
+              </div>
+              <p style="margin-bottom: 15px; color: #6c757d">
+                Download your data in CSV format
+              </p>
+              <button
+                id="export-filtered-btn"
+                class="btn"
+                style="margin-right: 15px"
+              >
+                � Export Filtered Data
+              </button>
+              <button
+                id="export-all-btn"
+                class="btn"
+                style="background: linear-gradient(45deg, #28a745, #20c997)"
+              >
+                📋 Export All Time Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Revenue Entry -->
+          <div id="tab1" class="tab-content">
+            <div class="form-section">
+              <h2>Revenue Entry</h2>
+              <form id="revenue-form">
+                <div class="form-group">
+                  <label for="revenue-date">Date</label>
+                  <input type="date" id="revenue-date" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="revenue-name">Name (User)</label>
+                  <select
+                    id="revenue-name"
+                    class="form-control user-select"
+                    data-select-type="revenue"
+                  >
+                    <option value="">Loading users...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="revenue-amount">Amount</label>
+                  <input
+                    type="number"
+                    id="revenue-amount"
+                    class="form-control"
+                    placeholder="Enter amount"
+                    step="0.01"
+                  />
+                </div>
+                <button type="submit" class="btn">Save Revenue Entry</button>
+              </form>
+              <div class="tab-features">
+                <h4>Future Features (Coming Soon)</h4>
+                <div class="feature-list">
+                  <div class="feature-item">📊 Revenue Analytics</div>
+                  <div class="feature-item">🔄 Recurring Entries</div>
+                  <div class="feature-item">📱 Mobile Notifications</div>
+                  <div class="feature-item">💼 Project Categories</div>
+                  <div class="feature-item">📈 Growth Tracking</div>
+                  <div class="feature-item">🎯 Revenue Goals</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Expense Entry -->
+          <div id="tab2" class="tab-content">
+            <div class="form-section">
+              <h2>Expense Entry</h2>
+              <form id="expense-form">
+                <div class="form-group">
+                  <label for="expense-date">Date</label>
+                  <input type="date" id="expense-date" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="expense-amount">Amount</label>
+                  <input
+                    type="number"
+                    id="expense-amount"
+                    class="form-control"
+                    placeholder="Enter amount"
+                    step="0.01"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="expense-receipt">Receipt Information</label>
+                  <textarea
+                    id="expense-receipt"
+                    class="form-control"
+                    placeholder="Enter receipt details, vendor info, or additional notes..."
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="expense-user">User Select</label>
+                  <select
+                    id="expense-user"
+                    class="form-control user-select"
+                    data-select-type="expense"
+                  >
+                    <option value="">Loading users...</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn">Save Expense Entry</button>
+              </form>
+              <div class="tab-features">
+                <h4>Future Features (Coming Soon)</h4>
+                <div class="feature-list">
+                  <div class="feature-item">🏷️ Expense Categories</div>
+                  <div class="feature-item">📄 Receipt Upload</div>
+                  <div class="feature-item">💳 Payment Methods</div>
+                  <div class="feature-item">🔔 Budget Alerts</div>
+                  <div class="feature-item">📊 Spending Analysis</div>
+                  <div class="feature-item">🎯 Budget Limits</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Meal Tracking -->
+          <div id="tab3" class="tab-content">
+            <div class="form-section">
+              <div class="meal-tracking-header">
+                <h2>🍽️ Meal Tracking</h2>
+                <p class="section-description">
+                  Track meals for multiple users efficiently
+                </p>
+              </div>
+
+              <form id="meal-form">
+                <!-- Two Column Layout Container -->
+                <div class="meal-tracking-grid">
+                  <!-- LEFT COLUMN: Entry Form (Main Content) -->
+                  <div class="grid-left-column">
+                    <!-- TIER 2: Entry Form (Grouped Together) -->
+                    <div class="tier-entry-form">
+                      <div class="tier-label">
+                        <span class="tier-icon">✏️</span>
+                        <span class="tier-text">Entry Form</span>
+                      </div>
+                      <div class="entry-form-wrapper">
+                        <!-- Date Selection Section -->
+                        <div class="meal-section-card">
+                          <div class="section-card-header">
+                            <span class="section-icon">�</span>
+                            <span class="section-title">Select Date</span>
+                          </div>
+                          <div class="section-card-body">
+                            <input
+                              type="date"
+                              id="meal-date"
+                              class="form-control modern-input-clean"
+                            />
+                          </div>
+                        </div>
+
+                        <!-- User Selection Section -->
+                        <div class="meal-section-card">
+                          <div class="section-card-header">
+                            <span class="section-icon">👥</span>
+                            <span class="section-title">Select Users</span>
+                          </div>
+                          <div class="section-card-body">
+                            <div class="user-selection-wrapper">
+                              <div class="select-all-row">
+                                <label class="select-all-label-clean">
+                                  <input
+                                    type="checkbox"
+                                    id="select-all-users"
+                                    class="checkbox-modern"
+                                  />
+                                  <span class="checkbox-label-clean"
+                                    >Select All Users</span
+                                  >
+                                </label>
+                              </div>
+                              <div
+                                class="user-checkbox-grid"
+                                id="user-checkbox-list"
+                              >
+                                <!-- User checkboxes will be populated here -->
+                                <div class="loading-text">Loading users...</div>
+                              </div>
+                              <div class="add-user-row">
+                                <button
+                                  type="button"
+                                  class="add-user-btn-clean"
+                                  id="add-user-from-meal"
+                                >
+                                  <span class="plus-icon">+</span> Add New User
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Meal Entry Section -->
+                        <div class="meal-section-card">
+                          <div class="section-card-header">
+                            <span class="section-icon">🍴</span>
+                            <span class="section-title">Add Meals</span>
+                          </div>
+                          <div class="section-card-body">
+                            <div class="meal-input-wrapper">
+                              <div class="meal-chips-area">
+                                <div class="meal-chips" id="meal-chips">
+                                  <!-- Meal chips will appear here -->
+                                </div>
+                                <input
+                                  type="text"
+                                  id="meal-chip-input"
+                                  class="meal-input-clean"
+                                  placeholder="Type meal name and press Enter..."
+                                />
+                              </div>
+                              <div class="quick-add-row">
+                                <span class="quick-add-label">Quick Add:</span>
+                                <div class="quick-add-buttons">
+                                  <button
+                                    type="button"
+                                    class="quick-add-btn"
+                                    data-meal="Breakfast"
+                                  >
+                                    <span class="quick-icon">🌅</span>
+                                    <span class="quick-text">Breakfast</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="quick-add-btn"
+                                    data-meal="Lunch"
+                                  >
+                                    <span class="quick-icon">☀️</span>
+                                    <span class="quick-text">Lunch</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="quick-add-btn"
+                                    data-meal="Dinner"
+                                  >
+                                    <span class="quick-icon">🌙</span>
+                                    <span class="quick-text">Dinner</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="quick-add-btn"
+                                    data-meal="Snack"
+                                  >
+                                    <span class="quick-icon">🍎</span>
+                                    <span class="quick-text">Snack</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- END LEFT COLUMN -->
+
+                  <!-- RIGHT COLUMN: Dashboard + Save -->
+                  <div class="grid-right-column">
+                    <!-- TIER 1: Dashboard Summary (Information Only) -->
+                    <div class="tier-dashboard">
+                      <div class="tier-label">
+                        <span class="tier-icon">📊</span>
+                        <span class="tier-text">Dashboard Overview</span>
+                      </div>
+                      <div class="dashboard-summary-column">
+                        <div class="summary-card date-summary">
+                          <div class="summary-icon">📅</div>
+                          <div class="summary-content">
+                            <div class="summary-label">Selected Date</div>
+                            <div class="summary-value" id="date-summary-value">
+                              Not selected
+                            </div>
+                          </div>
+                        </div>
+                        <div class="summary-card users-summary">
+                          <div class="summary-icon">👥</div>
+                          <div class="summary-content">
+                            <div class="summary-label">Users Selected</div>
+                            <div class="summary-value" id="users-summary-value">
+                              0 users
+                            </div>
+                          </div>
+                        </div>
+                        <div class="summary-card meals-summary">
+                          <div class="summary-icon">🍴</div>
+                          <div class="summary-content">
+                            <div class="summary-label">Meals Added</div>
+                            <div class="summary-value" id="meals-summary-value">
+                              0 meals
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- TIER 3: Action Area (Save) -->
+                    <div class="tier-action">
+                      <div class="tier-label">
+                        <span class="tier-icon">💾</span>
+                        <span class="tier-text">Save Entry</span>
+                      </div>
+                      <div class="action-card">
+                        <div class="preview-box" id="entry-preview">
+                          <div class="preview-icon">ℹ️</div>
+                          <div class="preview-text">
+                            Select date, users and add meals to begin
+                          </div>
+                        </div>
+                        <button type="submit" class="btn-save-clean">
+                          <span class="save-icon">💾</span>
+                          <span class="save-text">Save Meal Entries</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- END RIGHT COLUMN -->
+                </div>
+                <!-- END GRID -->
+              </form>
+              <div class="tab-features">
+                <h4>Future Features (Coming Soon)</h4>
+                <div class="feature-list">
+                  <div class="feature-item">🍽️ Calorie Tracking</div>
+                  <div class="feature-item">📸 Meal Photos</div>
+                  <div class="feature-item">⏰ Meal Times</div>
+                  <div class="feature-item">💰 Meal Costs</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manage Users Tab -->
+          <div id="manage-users" class="tab-content">
+            <div class="form-section">
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 15px;
+                  flex-wrap: wrap;
+                "
+              >
+                Manage Users Database
+                <button
+                  id="add-new-user-btn"
+                  class="btn"
+                  type="button"
+                  style="margin-top: 0"
+                >
+                  + Add New User
+                </button>
+              </h2>
+              <div
+                class="data-table"
+                id="manage-users-table"
+                style="margin-top: 15px"
+              >
+                <div class="table-header">Database Users</div>
+                <div class="table-content" id="manage-users-table-body"></div>
+              </div>
+              <div
+                id="manage-user-detail"
+                class="data-table"
+                style="display: none"
+              >
+                <div class="table-header" id="manage-user-detail-header">
+                  User Data Management
+                </div>
+                <div
+                  class="table-content"
+                  id="manage-user-detail-body"
+                  style="padding: 15px"
+                >
+                  <!-- populated dynamically -->
+                </div>
+              </div>
+              <p style="font-size: 0.8rem; color: #6c757d">
+                Manage all users in the database. View their data, toggle
+                active/inactive status, or permanently delete users and their
+                data.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-icon">✅</div>
+        <h3 id="modal-title">Success!</h3>
+        <p id="modal-message">Operation completed successfully.</p>
+        <button id="modal-ok-btn" class="btn">OK</button>
+      </div>
+    </div>
+
+    <!-- Logout Function -->
+    <script>
+      function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+          sessionStorage.clear();
+          window.location.href = 'index.html';
+        }
+      }
+    </script>
+
+    <!-- All logic moved to script.js -->
+  </body>
+</html>
